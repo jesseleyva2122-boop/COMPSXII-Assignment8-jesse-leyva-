@@ -18,13 +18,21 @@ int current_size = 0;
  * Allocates a square matrix of the given size.
  * Returns 1 on success, 0 on failure.
  */
+void free_matrix(void);
+
 int allocate_matrix(int size) {
+    free_matrix();
+    if (size <= 0) return 0;
     matrix = (int**)malloc(size * sizeof(int*));
     if (matrix == NULL) return 0;
     
     for (int i = 0; i < size; i++) {
         matrix[i] = (int*)malloc(size * sizeof(int));
-        if (matrix[i] == NULL) return 0;
+        if (matrix[i] == NULL) {
+            current_size = i;
+            free_matrix();
+            return 0;
+        }
         
         // Initialize with values
         for (int j = 0; j < size; j++) {
@@ -38,7 +46,7 @@ int allocate_matrix(int size) {
 /*
  * Frees the matrix memory.
  */
-void free_matrix() {
+void free_matrix(void) {
     if (matrix == NULL) return;
     
     for (int i = 0; i < current_size; i++) {
@@ -54,17 +62,18 @@ void free_matrix() {
  * Visits every element in row 0, then row 1, then row 2, etc.
  * Returns the sum of all elements.
  * 
- * TODO: Implement this function.
+ * Sums every element exactly once.
  * Hint: The outer loop should iterate over rows, the inner loop over columns.
  */
-long long traverse_row_major() {
+long long traverse_row_major(void) {
     long long sum = 0;
     
-    // ============================================
-    // TODO: Implement row-major traversal
-    // Visit elements in order: [0][0], [0][1], [0][2], ... [1][0], [1][1], ...
-    // ============================================
-    
+    for (int i = 0; i < current_size; ++i) {
+        for (int j = 0; j < current_size; ++j) {
+            sum += matrix[i][j];
+        }
+    }
+
     return sum;
 }
 
@@ -73,24 +82,25 @@ long long traverse_row_major() {
  * Visits every element in column 0, then column 1, then column 2, etc.
  * Returns the sum of all elements.
  * 
- * TODO: Implement this function.
+ * Sums every element exactly once.
  * Hint: The outer loop should iterate over columns, the inner loop over rows.
  */
-long long traverse_column_major() {
+long long traverse_column_major(void) {
     long long sum = 0;
     
-    // ============================================
-    // TODO: Implement column-major traversal
-    // Visit elements in order: [0][0], [1][0], [2][0], ... [0][1], [1][1], ...
-    // ============================================
-    
+    for (int j = 0; j < current_size; ++j) {
+        for (int i = 0; i < current_size; ++i) {
+            sum += matrix[i][j];
+        }
+    }
+
     return sum;
 }
 
 /*
  * Measures execution time of a traversal function in milliseconds.
  */
-double measure_time(long long (*traverse_func)(), long long* result) {
+double measure_time(long long (*traverse_func)(void), long long* result) {
     clock_t start = clock();
     *result = traverse_func();
     clock_t end = clock();
@@ -114,8 +124,8 @@ void run_test(int size) {
     double row_time = measure_time(traverse_row_major, &row_sum);
     double col_time = measure_time(traverse_column_major, &col_sum);
     
-    printf("Row-major:    %.2f ms (sum: %lld)\n", row_time, row_sum);
-    printf("Column-major: %.2f ms (sum: %lld)\n", col_time, col_sum);
+    printf("Row-major:    %.4f ms (sum: %lld)\n", row_time, row_sum);
+    printf("Column-major: %.4f ms (sum: %lld)\n", col_time, col_sum);
     
     if (row_time > 0) {
         printf("Ratio (col/row): %.2fx\n", col_time / row_time);
@@ -123,13 +133,15 @@ void run_test(int size) {
     
     // Verify both methods produce the same result
     if (row_sum != col_sum) {
-        printf("WARNING: Sums don't match! Check your implementations.\n");
+        fprintf(stderr, "ERROR: Sums do not match!\n");
+        free_matrix();
+        exit(EXIT_FAILURE);
     }
     
     free_matrix();
 }
 
-int main() {
+int main(void) {
     printf("Cache Behavior Lab\n");
     printf("==================\n");
     printf("Comparing row-major vs column-major matrix traversal\n");

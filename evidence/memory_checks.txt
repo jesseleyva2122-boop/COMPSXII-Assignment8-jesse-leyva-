@@ -1,0 +1,1 @@
+PASS: exact sums, all four required sizes, empty/small cases, repeated allocation/free, and every allocation failure in an 8-row matrix; no tracked allocations remain.

@@ -1,0 +1,26 @@
+Cache Behavior Lab
+==================
+Comparing row-major vs column-major matrix traversal
+
+--- Matrix Size: 1000 x 1000 ---
+Row-major:    0.4500 ms (sum: 49500000)
+Column-major: 1.2260 ms (sum: 49500000)
+Ratio (col/row): 2.72x
+
+--- Matrix Size: 2000 x 2000 ---
+Row-major:    1.5240 ms (sum: 198000000)
+Column-major: 7.4720 ms (sum: 198000000)
+Ratio (col/row): 4.90x
+
+--- Matrix Size: 4000 x 4000 ---
+Row-major:    8.2770 ms (sum: 792000000)
+Column-major: 150.3930 ms (sum: 792000000)
+Ratio (col/row): 18.17x
+
+--- Matrix Size: 8000 x 8000 ---
+Row-major:    29.1590 ms (sum: 3168000000)
+Column-major: 515.9360 ms (sum: 3168000000)
+Ratio (col/row): 17.69x
+
+==================
+Tests complete.

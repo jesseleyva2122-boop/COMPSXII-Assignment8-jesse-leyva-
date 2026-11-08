@@ -1,30 +1,31 @@
-# Cache Behavior Lab
+# Assignment 8: Cache Behavior Lab
+Jesse Leyva
 
-## Overview
-This assignment demonstrates how memory access patterns affect performance. You'll implement two matrix traversal functions that perform identical computation but access memory differently, then measure and explain the performance difference.
+Completed row-major and column-major matrix summation, measured across 1000, 2000, 4000, and 8000 square matrices at `-O0`, `-O2`, and `-O3`.
 
-## Files
-- `cache_lab.c` - Template file with TODO sections to complete
-- `README.md` - This file
+## Submission files
 
-## What to Complete
-1. `traverse_row_major()` - Sum all elements visiting row-by-row
-2. `traverse_column_major()` - Sum all elements visiting column-by-column
+- [cache_lab.c](cache_lab.c): both traversals, allocation failure cleanup, and timing instrumentation.
+- [analysis.md](analysis.md): measurements, optimization comparison, Compiler Explorer screenshots, RISC/CISC comparison, and cache explanation.
+- [evidence/](evidence/): raw timing logs, CSV, assembly, screenshots, environment, and check results.
+- [tests.c](tests.c): correctness and memory lifecycle tests, including injected allocation failures.
+- [benchmark.py](benchmark.py): reproduces three runs per optimization level.
 
-## Compiling and Running
+## Run
 
-**Basic compilation:**
 ```bash
-gcc cache_lab.c -o cache_lab
+gcc -std=c11 -Wall -Wextra -Wpedantic cache_lab.c -o cache_lab
 ./cache_lab
+python3 benchmark.py
 ```
 
-**Optimization level comparison:**
+## Check memory and correctness
+
 ```bash
-gcc -O0 cache_lab.c -o cache_O0 && ./cache_O0
-gcc -O2 cache_lab.c -o cache_O2 && ./cache_O2
-gcc -O3 cache_lab.c -o cache_O3 && ./cache_O3
+gcc -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer tests.c -o cache_tests
+ASAN_OPTIONS=detect_leaks=0 ./cache_tests
 ```
 
-## Expected Output
-Your program should display execution times for both traversal methods across four matrix sizes (1000, 2000, 4000, 8000). A correct implementation will show column-major traversal running significantly slower than row-major.
+LeakSanitizer is disabled here because its process inspection is blocked in the measurement environment. Allocation accounting independently checks that every tracked allocation is freed, including partial failures. On a machine that supports LeakSanitizer, try `ASAN_OPTIONS=detect_leaks=1 ./cache_tests`.
+
+Measured times depend on hardware and system conditions. All committed timings came from actual runs in the environment identified in the analysis. The final-project connection is a proposed warehouse-routing application.
